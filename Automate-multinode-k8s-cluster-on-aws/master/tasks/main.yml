@@ -1,0 +1,102 @@
+- name: "change mode"
+  file:
+       path: "{{ item.path }}"
+       mode: "go=wxr"
+       state: directory
+  loop:
+  - { path: "{{ dir }}" }
+- name: "configuring yum for kubeadm"
+  yum_repository:
+       name: "kubernetes"
+       description: "repo for kubernetes"
+       baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+       enabled: yes
+       repo_gpgcheck: yes
+       gpgcheck: yes
+       gpgkey: 
+       -  "{{ gpgkeys }}"
+       -  "https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
+
+- name: "installing kubelet,  kubeadm & kubectl"
+  yum:
+        name: "{{ item.package_name }}"
+        disable_excludes: "kubernetes"
+        state: present 
+  loop:
+  -   {  package_name: "{{ softwares }}"  }
+  
+- name: "insatll docker and iproute"
+  package: 
+        name: "{{ item.name }}"
+  loop:
+  -  { name: "docker" }
+  -  { name: "iproute-tc" }
+  
+
+- name: "starting, enabling docker and kubelet"
+  service:
+        name: "{{ item.name }}"
+        enabled: yes
+        state: started
+  loop:
+  -   {  name: "docker"  }
+  -   {  name: "kubelet" }
+
+- name: "pulling images ..."
+  shell:
+        cmd: "kubeadm config images pull"
+
+
+- file:
+       path: "{{ item.path }}"
+       state: touch
+  loop:
+  -  {  path: "{{ CreateFile[0] }}"  }
+  -  {  path: "{{ CreateFile[1] }}"  }
+
+
+- name: "Creating daemon.json file inside /etc/docker"
+  shell: |
+      cat <<EOF | sudo tee  "{{ CreateFile[0] }}"
+      {
+      "exec-opts": ["native.cgroupdriver=systemd"]
+      }
+      EOF
+  changed_when: false
+
+- name: "Re-starting Docker"
+  service:
+     name: docker
+     state:  restarted
+
+- name: "configuring ip tables..."
+  blockinfile:
+       path: "{{ CreateFile[1] }}"
+       block: |
+              net.bridge.bridge-nf-call-ip6tables=1
+              net.bridge.bridge-nf-call-iptables=1
+       state: present
+
+- name: "show system drive"
+  shell: "sysctl --system"
+
+- name: "Initializing the clusture"
+  shell: "sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=NumCPU  --ignore-preflight-errors=Mem"
+  ignore_errors: yes
+
+- name: "Creating the directory"
+  file:
+       name: "$HOME/.kube"
+       state: directory
+- name: "change mode"
+  shell: "sudo chown $(id -u):$(id -g) $HOME/.kube/config;sudo chmod go=wxr /etc/kubernetes/admin.conf"
+
+- name: "Copy admin conf to user's .kube config"
+  copy:
+      src: /etc/kubernetes/admin.conf
+      dest: $HOME/.kube/config
+      remote_src: yes
+
+- name: "Setup Cluster"
+  shell: "sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
+

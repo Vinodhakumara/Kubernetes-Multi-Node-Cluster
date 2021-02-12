@@ -1,0 +1,17 @@
+---
+# vars file for slave
+gpgkeys: "https://packages.cloud.google.com/yum/doc/yum-key.gpg"
+softwares: 
+   - "kubelet"
+   - "kubeadm"
+   - "kubectl"
+dir:
+   - "/etc/yum.repo.d"
+   - "/etc/docker/"
+   - "/etc/sysctl.d/"
+   - "/etc/yum.repo.d/kubernetes.repo"
+CreateFile:
+   - "{{ dir[1] }}daemon.json"
+   - "{{ dir[2] }}k8s.conf"
+
+

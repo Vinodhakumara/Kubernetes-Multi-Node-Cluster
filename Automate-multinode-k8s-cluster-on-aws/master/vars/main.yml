@@ -1,0 +1,20 @@
+---
+# vars file for master
+gpgkey: "https://packages.cloud.google.com/yum/doc/yum-key.gpg"
+softwares: 
+   - "iproute-tc"
+   - "docker"
+   - "kubelet"
+   - "kubeadm"
+   - "kubectl"
+dir:
+   - "/etc/yum.repo.d/"
+   - "/etc/docker/"
+   - "/etc/sysctl.d/"
+CreateFile:
+   - "{{ dir[1] }}daemon.json"
+   - "{{ dir[2] }}k8s.conf"
+
+
+
+

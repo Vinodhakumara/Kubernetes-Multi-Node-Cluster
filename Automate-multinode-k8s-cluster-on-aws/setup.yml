@@ -1,0 +1,21 @@
+---
+# Launch Inctances
+- hosts: localhost
+  become: false
+  roles:
+      - role: launch_instances
+
+# Configure Master
+- hosts: tag_Name_Master
+  roles:
+      - role: master
+
+# Configure Slaves
+- hosts: tag_Name_Slave
+  roles:
+      - role: slave
+
+# Setup Wordpress and my-sql
+- hosts: tag_Name_Master
+  roles:
+      - role: wordpress-mysql

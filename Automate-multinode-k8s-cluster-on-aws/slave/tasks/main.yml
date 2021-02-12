@@ -1,0 +1,94 @@
+---
+# Worker Configure
+- name: "change mode"
+  file:
+       path: "{{ item.path }}"
+       mode: "go=wxr"
+       state: directory
+  loop:
+  - { path: "{{ dir }}" }
+- name: "configuring yum for kubeadm"
+  yum_repository:
+       name: "kubernetes"
+       description: "repo for kubernetes"
+       baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+       enabled: yes
+       repo_gpgcheck: yes
+       gpgcheck: yes
+       gpgkey: 
+       -  "{{ gpgkeys }}"
+       -  "https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
+
+- name: "installing kubelet,  kubeadm & kubectl"
+  yum:
+        name: "{{ item.package_name }}"
+        disable_excludes: "kubernetes"
+        state: present 
+  loop:
+  -   {  package_name: "{{ softwares }}"  }
+  
+- name: "insatll docker and iproute"
+  package: 
+        name: "{{ item.name }}"
+  loop:
+  -  { name: "docker" }
+  -  { name: "iproute-tc" }
+  
+
+- name: "starting, enabling docker and kubelet"
+  service:
+        name: "{{ item.name }}"
+        enabled: yes
+        state: started
+  loop:
+  -   {  name: "docker"  }
+  -   {  name: "kubelet" }
+
+- name: "pulling images ..."
+  shell:
+        cmd: "kubeadm config images pull"
+
+
+- file:
+       path: "{{ item.path }}"
+       state: touch
+  loop:
+  -  {  path: "{{ CreateFile[0] }}"  }
+  -  {  path: "{{ CreateFile[1] }}"  }
+
+
+- name: "Creating daemon.json file inside /etc/docker"
+  shell: |
+      cat <<EOF | sudo tee  "{{ CreateFile[0] }}"
+      {
+      "exec-opts": ["native.cgroupdriver=systemd"]
+      }
+      EOF
+  changed_when: false
+
+- name: "Re-starting Docker"
+  service:
+     name: docker
+     state:  restarted
+
+- name: "configuring ip tables..."
+  blockinfile:
+       path: "{{ CreateFile[1] }}"
+       block: |
+              net.bridge.bridge-nf-call-ip6tables=1
+              net.bridge.bridge-nf-call-iptables=1
+       state: present
+
+- name: "show system drive"
+  shell: "sysctl --system"
+
+- name: Create token to join
+  command: "kubeadm token create  --print-join-command"
+  delegate_to: "{{ groups['tag_Name_Master'][0]  }}"
+  register: join_token
+
+- name: join worker Node
+  command: "{{ join_token.stdout }}"
+  ignore_errors: yes
+  changed_when: false
+

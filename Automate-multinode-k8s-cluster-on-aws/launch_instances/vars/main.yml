@@ -1,0 +1,18 @@
+---
+# vars file for launch_instances
+reg: ""
+img_id: ""
+i_type: ""
+vpcsi: ""
+key: ""
+sg_group: ""
+kube_master_name: ""
+aws_ak: ""
+aws_sk: ""
+vol_size: ""
+kube_worker_name1: ""
+kube_worker_name2: ""
+os_Name: 
+   - "Master"
+   - "Slave"
+   - "Slave"
