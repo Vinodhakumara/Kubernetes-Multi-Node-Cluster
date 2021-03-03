@@ -1,4 +1,5 @@
 - name: "change mode"
+  gather_facts: false
   file:
        path: "{{ item.path }}"
        mode: "go=wxr"
@@ -21,7 +22,7 @@
   yum:
         name: "{{ item.package_name }}"
         disable_excludes: "kubernetes"
-        state: present 
+        state: present
   loop:
   -   {  package_name: "{{ softwares }}"  }
   
@@ -46,14 +47,12 @@
   shell:
         cmd: "kubeadm config images pull"
 
-
 - file:
        path: "{{ item.path }}"
        state: touch
   loop:
   -  {  path: "{{ CreateFile[0] }}"  }
   -  {  path: "{{ CreateFile[1] }}"  }
-
 
 - name: "Creating daemon.json file inside /etc/docker"
   shell: |
@@ -89,7 +88,7 @@
        name: "$HOME/.kube"
        state: directory
 - name: "change mode"
-  shell: "sudo chown $(id -u):$(id -g) $HOME/.kube/config;sudo chmod go=wxr /etc/kubernetes/admin.conf"
+  shell: "chown $(id -u):$(id -g) $HOME/.kube/config;chmod go=wxr /etc/kubernetes/admin.conf"
 
 - name: "Copy admin conf to user's .kube config"
   copy:
@@ -98,5 +97,5 @@
       remote_src: yes
 
 - name: "Setup Cluster"
-  shell: "sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
+  shell: "kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
 

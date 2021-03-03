@@ -1,6 +1,7 @@
 ---
 # Worker Configure
 - name: "change mode"
+  gather_facts: false
   file:
        path: "{{ item.path }}"
        mode: "go=wxr"
@@ -34,7 +35,6 @@
   -  { name: "docker" }
   -  { name: "iproute-tc" }
   
-
 - name: "starting, enabling docker and kubelet"
   service:
         name: "{{ item.name }}"
@@ -70,6 +70,7 @@
   service:
      name: docker
      state:  restarted
+     when: 
 
 - name: "configuring ip tables..."
   blockinfile:

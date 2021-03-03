@@ -1,9 +1,5 @@
 ---
 # tasks file for launch_instances
-- name: "installing boto3"
-  pip:
-        name: "boto3"
-
 - name: "launching ec2-instances for kubernetes ..."
   ec2_instance:
         region: "{{ reg }}"

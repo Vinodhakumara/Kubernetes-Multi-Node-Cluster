@@ -1,0 +1,24 @@
+---
+- hosts: localhost
+  vars:
+    - packages:
+        - python3 
+    - librarie_names:
+        - boto
+        - boto3
+        - botocore
+
+  tasks:
+    - name: Installing softwares
+      yum: 
+         name: "{{ item }}"
+         state: present  
+      loop: "{{ packages }}"
+
+    - name: Installing Required Libraries
+      pip:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ librarie_names }}" 
+
+...
