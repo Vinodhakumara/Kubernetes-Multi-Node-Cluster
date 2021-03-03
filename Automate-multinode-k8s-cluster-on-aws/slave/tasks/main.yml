@@ -85,7 +85,7 @@
 
 - name: Create token to join
   command: "kubeadm token create  --print-join-command"
-  delegate_to: "{{ groups['tag_Name_Master'][0]  }}"
+  delegate_to: "{{ groups['tag_name_Master'][0]  }}"
   register: join_token
 
 - name: join worker Node

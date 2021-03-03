@@ -2,21 +2,27 @@
 # Launch Inctances
 - hosts: localhost
   become: false
+  gather_facts: false
   tasks:
       - name: "Download Requirement Files"
         shell: "./system_requirement;ansible-playbook run_ec2_role.yml"
 
 # Configure Master
 - hosts: tag_Name_Master
+  become: true
+  gather_facts: false
   roles:
       - role: master
 
 # Configure Slaves
 - hosts: tag_Name_Slave
+  gather_facts: false
   roles:
       - role: slave
 
 # Setup Wordpress and my-sql
 - hosts: tag_Name_Master
+  become: true
+  gather_facts: false
   roles:
       - role: wordpress-mysql
