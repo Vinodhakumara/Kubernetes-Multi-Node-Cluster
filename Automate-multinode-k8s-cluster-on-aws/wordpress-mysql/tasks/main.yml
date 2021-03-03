@@ -9,7 +9,7 @@
 
 #task to launch mysql 
 - name: "Launching MySql"
-  shell: "kubectl run mydb1 --image=mysql:5.7 --env=MYSQL_ROOT_PASSWORD=vinod2681997     --env=MYSQL_DATABASE=vinod_db  --env=MYSQL_USER=vinod  --env=MYSQL_PASSWORD=vinod2681997"
+  shell: "kubectl run mydb1 --image=mysql:5.7 --env=MYSQL_ROOT_PASSWORD=rootPassword     --env=MYSQL_DATABASE=vinod_db  --env=MYSQL_USER=vinod  --env=MYSQL_PASSWORD=yourPassword"
   register: MySql
 
 - name: "Exposing wordpess"
