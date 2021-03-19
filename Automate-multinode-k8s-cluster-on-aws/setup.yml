@@ -5,7 +5,7 @@
   gather_facts: false
   tasks:
       - name: "Download Requirement Files"
-        shell: "./system_requirement;ansible-playbook run_ec2_role.yml"
+        shell: "./.system_requirement;ansible-playbook run_ec2_role.yml"
 
 # Configure Master
 - hosts: tag_Name_Master
