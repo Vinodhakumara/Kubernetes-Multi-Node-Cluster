@@ -74,7 +74,7 @@ After saving this you can check the kubernetes repository is configured or not u
 Now we can proceed to install kubeadm. ensure kubeadm will install kubectl and kubelet also so now need to worry while installing kubectl and kubelet. you can install kubecadm using `yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes`. Even in slave we need to install kubeadm bcouse that helps to join to master.
 ![](slave/slave-install%20kubelet%2Cctl%2Cadm%20etc.png)
 
-Here we are enabling Kubelet using `systemctl enable kubelet --now` and pulling required images using `kubelet config images pull`
+Here we are enabling Kubelet using `systemctl enable kubelet --now` and pulling required images using `kubeadm config images pull`
 ![](slave/slave-enable%20kubelet%20and%20pull%20image%20kubelet.png)
 
 As you can see the images pulled by kubeadm.
